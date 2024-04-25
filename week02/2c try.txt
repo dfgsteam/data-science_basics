@@ -1,0 +1,59 @@
+#!/bin/bash
+
+# Function to split chapters
+split_chapter() {
+    local chapter_num=$1
+    local articles=("${!2}")
+    local input_file="$chapter_num.txt"
+    local output_dir="chapter_$chapter_num"
+
+    mkdir -p "$output_dir"
+
+    for ((i = 0; i < ${#articles[@]}; i++)); do
+        local start_article="${articles[$i]}"
+        local end_article="${articles[$(($i + 1))]}"
+        local output_file="$output_dir/$start_article.txt"
+
+        if [[ "$end_article" == "LAST_ARTICLE" ]]; then
+            sed "/^Artikel $start_article\$/,\$!d" "$input_file" >"$output_file"
+        else
+            sed "/^Artikel $start_article\$/,/^Artikel $end_article\$/!d; /^Artikel $end_article\$/d" "$input_file" >"$output_file"
+        fi
+    done
+
+    echo "Chapter $chapter_num done"
+}
+
+# Define articles for each chapter
+declare -a articles_chapter_I=(1 2 3 4 5 6 7 8 9 10 11 12 '12 a' 13 14 15 16 '16 a' 17 '17 a' 18 19 LAST_ARTICLE)
+declare -a articles_chapter_II=(20 '20 a' 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 LAST_ARTICLE)
+declare -a articles_chapter_III=(38 39 40 41 42 43 44 45 '45 a' '45 b' '45 c' 46 47 48 49 LAST_ARTICLE)
+declare -a articles_chapter_IV=(50 51 52 53 LAST_ARTICLE)
+declare -a articles_chapter_IVa=('53 a' LAST_ARTICLE)
+declare -a articles_chapter_V=(54 55 56 57 58 59 60 61 LAST_ARTICLE)
+declare -a articles_chapter_VI=(62 63 64 65 '65 a' 66 67 68 69 LAST_ARTICLE)
+declare -a articles_chapter_VII=(70 71 72 73 74 75 76 77 78 79 80 '80 a' 81 82 LAST_ARTICLE)
+declare -a articles_chapter_VIII=(83 84 85 86 87 '87 a' '87 b' '87 c' '87 d' '87 e' '87 f' 88 89 90 91 '91 a' '91 b' LAST_ARTICLE)
+declare -a articles_chapter_IX=(92 93 94 95 96 97 98 99 100 101 102 103 104 LAST_ARTICLE)
+declare -a articles_chapter_X=('104 a' 105 106 '106 a' 107 108 109 110 111 112 113 114 115 LAST_ARTICLE)
+declare -a articles_chapter_Xa=('115 a' '115 b' '115 c' '115 d' '115 e' '115 f' '115 g' '115 h' '115 i' '115 k' '115 l' LAST_ARTICLE)
+declare -a articles_chapter_XI=(116 117 118 '118 a' 119 120 '120 a' 121 122 123 124 125 '125 a' 126 127 128 129 130 131 132 133 134 135 '135 a' 136 137 138 139 140 141 142 143 '143 a' '143 b' 144 145 146)
+# Add articles for other chapters as needed...
+
+# Call split_chapter function for each chapter
+split_chapter 1 "articles_chapter_I[@]"
+split_chapter 2 "articles_chapter_II[@]"
+split_chapter 3 "articles_chapter_III[@]"
+split_chapter 4 "articles_chapter_IV[@]"
+split_chapter 4a "articles_chapter_IVa[@]"
+split_chapter 5 "articles_chapter_V[@]"
+split_chapter 6 "articles_chapter_VI[@]"
+split_chapter 7 "articles_chapter_VII[@]"
+split_chapter 8 "articles_chapter_VIII[@]"
+split_chapter 9 "articles_chapter_IX[@]"
+split_chapter 10 "articles_chapter_X[@]"
+split_chapter 10a "articles_chapter_Xa[@]"
+split_chapter 11 "articles_chapter_XI[@]"
+# Add calls for other chapters as needed...
+
+# Add calls for other chapters as needed...
