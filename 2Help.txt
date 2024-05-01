@@ -1,0 +1,188 @@
+curl -o grundgesetz.txt https://raw.githubusercontent.com/levinalex/deutsche_verfassungen/master/grundgesetz/grundgesetz.txt
+ChatGPT
+This command utilizes the curl tool, which is commonly used to transfer data from or to a server. Here's a breakdown of each part of the command:
+
+curl: This is the command-line tool used to transfer data.
+-o grundgesetz.txt: This option specifies the output file name (grundgesetz.txt) where the downloaded data will be saved. If the file already exists, it will be overwritten. If not specified, the downloaded data will be printed to the standard output (usually the terminal).
+https://raw.githubusercontent.com/levinalex/deutsche_verfassungen/master/grundgesetz/grundgesetz.txt: This is the URL from which the data will be fetched. It points to a text file (grundgesetz.txt) hosted on GitHub that contains the text of the German constitution ("Grundgesetz").
+So, when you run this command, it will download the text file containing the German constitution and save it as grundgesetz.txt in your current directory.
+
+User
+sed '/^I$/,$!d' grundgesetz.txt > gg_clean.txt
+ChatGPT
+This command uses sed, a stream editor, to manipulate text. Here's a breakdown of the command:
+
+sed: The command itself, indicating the use of sed.
+'/^I$/,$!d': This is a sed command to delete lines from the beginning of the file (^I$, where ^ denotes the start of a line, I is the content of the line, and $ denotes the end of a line) until the first occurrence of the pattern I. After that pattern ($ represents the end of the file), it stops deleting (!d means "not delete").
+grundgesetz.txt: This is the input file (grundgesetz.txt) from which sed will read the text.
+> gg_clean.txt: This redirects the output of the sed command to a new file named gg_clean.txt.
+So, this command will read the content of grundgesetz.txt, delete all lines from the beginning until the first occurrence of the pattern I, and save the remaining content to a new file named gg_clean.txt.
+
+User
+touch Kapitel-I.txt
+
+CURLINE=1                      # Zeilennummer wo das derzeitige Kapitel anfängt
+CURKAPITEL="I Die Grundrechte" # Name des derzeitigen Kapitels
+grep -n '^[A-Z][A-Za]*$' gg_clean.txt | grep -v '^1:I$' | while IFS=':' read NEXTLINE NEXTKAPITEL; do # Schleife über die Anfangszeile mit Zeilennummer des jeweils nächsten Kapitels
+	NEXTKAPITELTITLE="$(sed "$((NEXTLINE + 1))!d" gg_clean.txt)" # Extrahiere Titel des nächsten Kapitels
+	NEXTKAPITEL="${NEXTKAPITEL} $NEXTKAPITELTITLE"
+
+	tail -n "+$CURLINE" gg_clean.txt | head -n "$((NEXTLINE-CURLINE))" > "Kapitel-${CURKAPITEL}.txt" # Schreibe derzeitige Kapitel
+	tail -n "+$NEXTLINE" gg_clean.txt > "Kapitel-${NEXTKAPITEL}.txt" # Wichtig um letztes Kapitel zu schreiben
+	CURLINE=$NEXTLINE
+	CURKAPITEL="$NEXTKAPITEL"
+done
+
+
+CURLINE=1                      # Zeilennummer, an der das derzeitige Kapitel beginnt
+CURKAPITEL="I" # Name des derzeitigen Kapitels
+
+rm Kapitel-I.txt
+mv Kapitel-I\ Die\ Grundrechte.txt Kapitel-I.txt
+ChatGPT
+This script appears to be performing several operations related to splitting a text file (gg_clean.txt), which likely contains the cleaned text of the German constitution, into separate chapters. Let's break down what each part of the script does:
+
+touch Kapitel-I.txt: This command creates an empty file named Kapitel-I.txt.
+Setting initial variables:
+CURLINE=1: This variable holds the line number where the current chapter starts.
+CURKAPITEL="I Die Grundrechte": This variable holds the name of the current chapter.
+The main loop:
+grep -n '^[A-Z][A-Za]*$' gg_clean.txt: This command finds lines in gg_clean.txt that start with an uppercase letter followed by one or more letters. It also includes line numbers (-n option).
+grep -v '^1:I$': This command excludes the first chapter's title line, assuming it's "I" (the Roman numeral for 1).
+while IFS=':' read NEXTLINE NEXTKAPITEL; do: This loop reads each line found by the previous grep command, splitting it into the line number (NEXTLINE) and the chapter title (NEXTKAPITEL).
+Inside the loop:
+NEXTKAPITELTITLE="$(sed "$((NEXTLINE + 1))!d" gg_clean.txt)": This command extracts the title of the next chapter from gg_clean.txt based on the line number found in the loop.
+tail -n "+$CURLINE" gg_clean.txt | head -n "$((NEXTLINE-CURLINE))" > "Kapitel-${CURKAPITEL}.txt": This command extracts the content of the current chapter from gg_clean.txt and writes it to a file named Kapitel-I Die Grundrechte.txt. It then moves on to the next chapter.
+tail -n "+$NEXTLINE" gg_clean.txt > "Kapitel-${NEXTKAPITEL}.txt": This command writes the content of the next chapter to a file named Kapitel-<chapter_title>.txt.
+Updating variables: CURLINE=$NEXTLINE and CURKAPITEL="$NEXTKAPITEL".
+Cleanup and renaming:
+rm Kapitel-I.txt: This command removes the initially created empty file.
+mv Kapitel-I\ Die\ Grundrechte.txt Kapitel-I.txt: This command renames the file Kapitel-I Die Grundrechte.txt to Kapitel-I.txt.
+In summary, this script divides the cleaned text of the German constitution into separate chapter files, with each file containing the content of one chapter.
+
+User
+for KFILE in Kapitel-*.txt ; do # Schleife über alle Kapiteltext Dateien in dem Ordner
+	KDIR="$(echo "$KFILE" | cut -d '.' -f 1)" # Der Ordnername für den Kapitel (Dateiname ohne .txt)
+	echo "==============================================================="
+	echo "$KDIR"
+	mkdir -p "$KDIR" # Erstelle den Kapitellordner falls noch nicht vorhanden.
+
+	pushd "$KDIR" >/dev/null # Gehe in den Kapitelelordner
+	KFILE="../$KFILE" # Da wir jetzt in dem Ordner sind, muss der Pfad aktualisiert werden.
+	
+	CURLINE=0
+	CURARTIKEL=""
+	grep -n '^Artikel [0-9]*\( [a-z]\)\?$' "$KFILE" | tr ' ' '_' | while IFS=':' read NEXTLINE NEXTARTIKEL ; do
+		if [ -n "$CURARTIKEL" ]; then
+			echo "  $CURARTIKEL"
+			tail -n "+$CURLINE" "$KFILE" | head -n "$((NEXTLINE-CURLINE))" > "${CURARTIKEL}.txt" # Schreibe derzeitige Artikel
+		fi
+		tail -n "+$NEXTLINE" "$KFILE" > "${NEXTARTIKEL}.txt" # Wichtig um letzten Artikel zu schreiben
+		CURLINE=$NEXTLINE
+		CURARTIKEL="$NEXTARTIKEL"
+	done
+
+	popd >/dev/null # Gehe aus dem Artikelordner raus
+done
+ChatGPT
+This part of the script continues the process of organizing the text into chapters and further into articles. Let's break it down:
+
+for KFILE in Kapitel-*.txt ; do: This loop iterates over all files in the directory that start with "Kapitel-" and end with ".txt".
+Inside the loop:
+KDIR="$(echo "$KFILE" | cut -d '.' -f 1)": This command extracts the directory name for the chapter (filename without ".txt").
+echo "===============================================================": This command prints a separator line to visually separate each chapter.
+echo "$KDIR": This command prints the name of the chapter.
+mkdir -p "$KDIR": This command creates the chapter directory if it doesn't already exist.
+pushd "$KDIR" >/dev/null: This command changes the directory to the chapter directory.
+KFILE="../$KFILE": This command updates the path to the chapter file since we are now in the chapter directory.
+Inside the nested loop:
+Setting initial variables:
+CURLINE=0: This variable holds the line number where the current article starts.
+CURARTIKEL="": This variable holds the name of the current article.
+grep -n '^Artikel [0-9]*\( [a-z]\)\?$' "$KFILE" | tr ' ' '_' | while IFS=':' read NEXTLINE NEXTARTIKEL ; do: This command searches for lines in the chapter file that start with "Artikel" followed by a space and a number, possibly followed by a lowercase letter. It then replaces spaces with underscores for file naming consistency.
+Inside the nested loop:
+if [ -n "$CURARTIKEL" ]; then: This condition checks if the variable CURARTIKEL is not empty, indicating that there is a current article being processed.
+echo " $CURARTIKEL": This command prints the name of the current article.
+tail -n "+$CURLINE" "$KFILE" | head -n "$((NEXTLINE-CURLINE))" > "${CURARTIKEL}.txt": This command extracts the content of the current article from the chapter file and writes it to a file named with the article title.
+tail -n "+$NEXTLINE" "$KFILE" > "${NEXTARTIKEL}.txt": This command writes the content of the next article to a file named with the article title.
+Updating variables: CURLINE=$NEXTLINE and CURARTIKEL="$NEXTARTIKEL".
+popd >/dev/null: This command returns to the previous directory.
+This part of the script organizes the text into separate directories for each chapter, and within each chapter directory, it further divides the text into separate files for each article.
+
+User
+#!/bin/bash
+TIME=$2
+PID=$1
+while true; do
+        if ps -q $PID > /dev/null ; then
+                echo "$PID is running."
+        else
+                echo "$PID is not running."
+        fi
+        sleep $TIME
+done
+ChatGPT
+This script is a simple bash script designed to monitor whether a specified process is running or not. Here's a breakdown of how it works:
+
+#!/bin/bash: This line specifies the interpreter to be used, which is Bash in this case.
+TIME=$2 and PID=$1: These lines assign the values of the first and second command-line arguments to the variables PID and TIME, respectively. $1 represents the first argument passed to the script (presumably the process ID), and $2 represents the second argument (presumably the time interval).
+while true; do: This initiates an infinite loop. The loop will continue running until it is explicitly terminated.
+Inside the loop:
+if ps -q $PID > /dev/null ; then: This line checks whether the process with the specified PID is running. It uses the ps command to query the process status. The -q option is used to specify the PID, and > /dev/null redirects the output to /dev/null, effectively suppressing it.
+echo "$PID is running." and echo "$PID is not running.": Depending on the result of the if condition, one of these messages will be printed to the console indicating whether the process is running or not.
+sleep $TIME: This line causes the script to sleep for the specified time interval ($TIME) before repeating the loop.
+In summary, this script continuously checks whether a specified process is running at regular intervals and prints a message indicating its status.
+
+User
+#!/bin/bash
+
+# One liner :P
+# find "$1" -printf '%d %y %p\n' | sed 's,^\([0-9]*\) d,\1 Directory,;s,^\([0-9]*\) [^D],\1 File,;s,^\([0-9]*\) \([^ ]*\) \(.*\),printf "%*c %s: %s\\n" "\1" " " "\2" "\3",' | bash
+
+
+
+function tree () {
+	local FILE="$1"
+	local SPACES="$2"
+	if [ "$SPACES" != "0" ]; then # fix SPACES=0 still printing spaces
+		# print SPACES*4 spaces
+		printf "%*c" "$SPACES" " " # prints spaces  (%*c prints the character " " with width of $SPACES)
+		printf "%*c" "$SPACES" " " # prints spaces  (%*c prints the character " " with width of $SPACES)
+		printf "%*c" "$SPACES" " " # prints spaces  (%*c prints the character " " with width of $SPACES)
+		printf "%*c" "$SPACES" " " # prints spaces  (%*c prints the character " " with width of $SPACES)
+	fi
+	if [ ! -d "$FILE" ]; then 
+		# FILE is not a directory
+		printf "File: %s \n" "$FILE"
+	else
+		# FILE is a directory
+		printf "Directory: %s \n" "$FILE" 
+		#find "$FILE" -maxdepth 1 -mindepth 1 | while read LINE; do
+		find "$FILE" -maxdepth 1 -mindepth 1 -printf "%y %p\n" | sort -r | cut -d " " -f 2- | while read LINE; do # sort by file type (looks better)
+			tree "$LINE" "$(( SPACES + 1 ))" # recursive call
+		done
+	fi
+}  
+tree "$1" 0 # initial call
+ChatGPT
+This script is a Bash function named tree that emulates the behavior of the tree command by recursively listing the contents of a directory and its subdirectories in a tree-like format.
+
+Here's a breakdown of how the script works:
+
+function tree () {: This line defines the beginning of the tree function.
+local FILE="$1" and local SPACES="$2": These lines declare local variables FILE and SPACES and assign them the values of the first and second arguments passed to the function, respectively.
+if [ "$SPACES" != "0" ]; then: This line checks if the SPACES variable is not equal to "0". It's used to ensure that even if SPACES is zero, spaces are still printed correctly.
+Inside the if statement:
+The first printf "%*c" "$SPACES" " " statement prints spaces to indent the output. It uses the %*c format specifier to print a character (in this case, a space) with a specified width ($SPACES).
+Another printf "%*c" "$SPACES" " " statement follows to print additional spaces.
+if [ ! -d "$FILE" ]; then: This line checks if the $FILE is not a directory.
+Inside the if statement:
+If $FILE is not a directory, it prints "File: " followed by the filename ($FILE).
+Else:
+If $FILE is a directory, it prints "Directory: " followed by the directory name ($FILE).
+It then uses the find command to list the contents of the directory ($FILE) while ignoring its subdirectories (-maxdepth 1) and excluding the directory itself (-mindepth 1).
+The output is sorted by file type (-printf "%y %p\n" | sort -r) and then the file type character is removed (cut -d " " -f 2-).
+For each file or directory in the current directory, the tree function is called recursively with the current file or directory and an increased indentation level ($(( SPACES + 1 ))).
+}: This line marks the end of the tree function.
+tree "$1" 0: This line calls the tree function with the first argument passed to the script (presumably the directory to be traversed) and an initial indentation level of 0.
+Overall, this script recursively traverses directories, printing the directory structure in a tree-like format, similar to the tree command.
