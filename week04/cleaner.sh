@@ -15,4 +15,4 @@ awk 'BEGIN { FS = OFS = "," } { if (substr($0, length($0), 1) != "\"") { print }
 # Aufräumen
 rm temp.csv
 
-echo "Die Konvertierung wurde abgeschlossen. Die Ausgabedatei lautet: $output_file"
+echo "Die Konvertierung wurde abgeschlossen. Die Ausgabedatei lautet: $output_file" 
