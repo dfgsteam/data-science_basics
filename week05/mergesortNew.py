@@ -1,3 +1,6 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
 def assign_value(destination_list, dest_index, source_list, src_index):
     """
     Assigns the value from source_list[src_index] to destination_list[dest_index].
@@ -9,7 +12,6 @@ def assign_value(destination_list, dest_index, source_list, src_index):
         src_index (int): The index in the source list from which the value is taken.
     """
     destination_list[dest_index] = source_list[src_index]
-
 
 def merge_sort(input_list):
     """
@@ -56,7 +58,6 @@ def merge_sort(input_list):
 
     return input_list
 
-
 def visualize_sorting(input_list):
     """
     Visualizes the sorting process using matplotlib.
@@ -64,25 +65,24 @@ def visualize_sorting(input_list):
     Args:
         input_list (list): The list to be sorted and visualized.
     """
-    import matplotlib.pyplot as plt
-
-    x = range(len(input_list))
-    
-    # Plot the unsorted list
-    plt.plot(x, input_list, label='Unsorted')
-    plt.legend()
-    plt.show()
+    x = np.arange(len(input_list))
 
     # Sort the list
-    sorted_list = merge_sort(input_list)
+    sorted_list = merge_sort(input_list.copy())
 
-    # Plot the sorted list
-    plt.plot(x, sorted_list, label='Sorted')
+    # Plot the unsorted and sorted list in the same diagram
+    plt.figure(figsize=(10, 6))
+    plt.plot(x, input_list, label='Unsorted', color='blue', marker='o')
+    plt.plot(x, sorted_list, label='Sorted', color='green', marker='o')
+    plt.xlabel('Index')
+    plt.ylabel('Value')
+    plt.title('Visualization of Merge Sort')
     plt.legend()
+    plt.grid(True)
     plt.show()
-
 
 # Example usage
 if __name__ == "__main__":
     example_list = [54, 26, 93, 17, 77, 31, 44, 55, 20]
     visualize_sorting(example_list)
+

@@ -1,4 +1,3 @@
-# scripts/run_method.py
 from find_single import find_single_element
 
 if __name__ == "__main__":
