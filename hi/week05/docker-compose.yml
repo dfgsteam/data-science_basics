@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  run-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./scripts:/app/scripts
+    command: pytest
+
+  run-method:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./scripts:/app/scripts
+    command: python scripts/run_method.py
