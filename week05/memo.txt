@@ -1,0 +1,8 @@
+Comprehensibility (Verständlichkeit): Die Funktionsnamen und Variablennamen wurden geändert, um klarer und aussagekräftiger zu sein. Docstrings wurden hinzugefügt, um die Funktion jeder Funktion zu erklären.
+Reproducibility (Reproduzierbarkeit): Der Code liefert reproduzierbare Ergebnisse, da keine zufälligen Elemente oder variablen Zustände vorhanden sind.
+Consistency (Konsistenz): Die Formatierung und Benennung sind konsistent über den gesamten Code hinweg.
+Correctness (Korrektheit): Die Implementierung des Merge-Sort-Algorithmus wurde beibehalten, um die korrekte Funktion sicherzustellen.
+Reusability (Wiederverwendbarkeit): Funktionen wie merge_sort und visualize_sorting sind modular und können leicht wiederverwendet werden.
+Clarity (Klarheit): Der Code ist klar und prägnant, mit minimalen, aber ausreichenden Kommentaren und Dokumentationen.
+Thoroughness (Gründlichkeit): Der gesamte Sortierprozess wird detailliert abgedeckt und die Visualisierung ergänzt die Erklärung des Algorithmus.
+Robustness (Robustheit): Der Code ist robust gegenüber ungültigen Eingaben, da die Rekursion nur ausgeführt wird, wenn die Liste mehr als ein Element enthält.
