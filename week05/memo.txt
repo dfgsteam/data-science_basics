@@ -6,3 +6,14 @@ Reusability (Wiederverwendbarkeit): Funktionen wie merge_sort und visualize_sort
 Clarity (Klarheit): Der Code ist klar und prägnant, mit minimalen, aber ausreichenden Kommentaren und Dokumentationen.
 Thoroughness (Gründlichkeit): Der gesamte Sortierprozess wird detailliert abgedeckt und die Visualisierung ergänzt die Erklärung des Algorithmus.
 Robustness (Robustheit): Der Code ist robust gegenüber ungültigen Eingaben, da die Rekursion nur ausgeführt wird, wenn die Liste mehr als ein Element enthält.
+
+
+Änderungen im Detail:
+
+    Konstanten und Parameterbezeichnungen: Die Funktion ASSIGNMENT wurde in assign_value umbenannt.
+    Bessere Variablennamen: Variablennamen wurden von l, r, i in i, j, k geändert, um besser lesbar zu sein.
+    Docstrings und Kommentare: Es wurden Docstrings hinzugefügt, um die Funktionen zu dokumentieren.
+    Code-Formatierung: Der Code wurde entsprechend PEP 8 formatiert.
+    Verwendung von Listen-Slicing: Unnötige Überprüfungen wurden entfernt.
+    Nutzung der Standardfunktionen: Die Zuweisungslogik wurde vereinfacht.
+    Modularisierung des Codes: Die Visualisierungslogik wurde in eine separate Funktion ausgelagert.
